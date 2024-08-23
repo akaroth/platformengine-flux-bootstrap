@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: arc-runner-shared-${env_class}
+  name: arc-runner-shared-prd
   namespace: arc-runners
 spec:
   interval: 12h
@@ -15,16 +15,16 @@ spec:
         kind: HelmRepository
         name: arc
         namespace: flux-system
-  releaseName: pe-arc-runner-shared-${env_class}
+  releaseName: pe-arc-runner-shared-prd
   targetNamespace: arc-runners
   values:
     githubConfigSecret: pe-github-secret  #pragma: allowlist secret
-    githubConfigUrl: "https://github.com/AnoopHegde"
+    githubConfigUrl: "https://github.com/akaroth"
     runnerGroup: platformengine-runner-group
     template:
       spec:
         imagePullSecrets:
-          - name: docker-secret
+          - name: akaroth-github
         containers:
           - command:
               - /home/runner/run.sh
@@ -37,7 +37,7 @@ spec:
                 value: /certs/client
               - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
                 value: "120"
-            image: peacr${env_class}.azurecr.io/pe-actions-runner:main
+            image: peacrprd.azurecr.io/pe-actions-runner:main
             imagePullPolicy: Always
             name: runner
             volumeMounts:
@@ -58,7 +58,7 @@ spec:
               - mountPath: /home/runner/externals
                 name: dind-externals
                   #imagePullSecrets:
-          #- name: docker-secret          
+          #- name: docker-secret
         initContainers:
           - args:
               - -r
@@ -67,7 +67,7 @@ spec:
               - /home/runner/tmpDir/
             command:
               - cp
-            image: peacr${env_class}.azurecr.io/pe-actions-runner:main
+            image: peacrprd.azurecr.io/pe-actions-runner:main
             name: init-dind-externals
             volumeMounts:
               - mountPath: /home/runner/tmpDir
@@ -89,5 +89,3 @@ spec:
     crds: CreateReplace
     remediation:
       remediateLastFailure: true
-
-
